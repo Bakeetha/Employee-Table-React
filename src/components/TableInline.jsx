@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrashAlt, FaSave, FaTimes } from 'react-icons/fa';
+import AlertDialog from './AlertDialog';
 
 
 export default function TableInline() {
@@ -15,6 +16,8 @@ export default function TableInline() {
         designation: '',
         salary: '',
       });
+      const [dialogOpen, setDialogOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
     
       const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -61,21 +64,57 @@ export default function TableInline() {
     //     });
     //   };
 
+      // const addEmployee = () => {
+      //   setEmployees([...employees, 
+      //     { 
+      //       emp_id: employees.length + 1, 
+      //       name: '', 
+      //       designation: '', 
+      //       salary: '' 
+      //     }
+      //   ]);
+      // };
       const addEmployee = () => {
-        setEmployees([...employees, 
-          { 
-            emp_id: employees.length + 1, 
-            name: '', 
-            designation: '', 
-            salary: '' 
-          }
-        ]);
+        const newEmployee = {
+          emp_id: employees.length + 1,
+          name: '',
+          designation: '',
+          salary: ''
+        };
+        setEmployees([...employees, newEmployee]);
+        setEditEmployeeId(newEmployee.emp_id);
+        setEditFormData({
+          name: '',
+          designation: '',
+          salary: ''
+        });
+      };
+
+    
+      // const deleteEmployee = (emp_id) => {
+      //   setDialogOpen(true);
+      //   if(dialogOpen) {
+      //     setEmployees(employees.filter(employee => employee.emp_id !== emp_id));
+      //     // setDialogOpen(false);
+      //   }
+      // };
+
+      const openDeleteDialog = (emp_id) => {
+        setEmployeeToDelete(emp_id);
+        setDialogOpen(true);
       };
     
-      const deleteEmployee = (emp_id) => {
-        const editedName = prompt('Are you sure you want to delete this employee?');
-        setEmployees(employees.filter(employee => employee.emp_id !== emp_id));
+      const handleCloseDialog = () => {
+        setDialogOpen(false);
+        setEmployeeToDelete(null);
       };
+    
+      const handleConfirmDelete = () => {
+        setEmployees(employees.filter(employee => employee.emp_id !== employeeToDelete));
+        setDialogOpen(false);
+        setEmployeeToDelete(null);
+      };
+
     
       return (
         <div className="w-full text-center items-center justify-center ">
@@ -156,7 +195,8 @@ export default function TableInline() {
                         onClick={() => handleEditClick(employee)} 
                         style={{ cursor: 'pointer', marginRight: '10px' }} />
                         <FaTrashAlt className='text-red-600'
-                         onClick={() => deleteEmployee(employee.emp_id)} 
+                        //  onClick={() => deleteEmployee(employee.emp_id)} 
+                         onClick={() => openDeleteDialog(employee.emp_id)}
                          style={{ cursor: 'pointer' }} />
                       </>
                     )}
@@ -165,6 +205,11 @@ export default function TableInline() {
               ))}
             </tbody>
           </table>
+          <AlertDialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirmDelete}
+      />
           {/* <h2>Add New Employee</h2>
           <div>
             <input
